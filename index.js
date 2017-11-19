@@ -159,7 +159,7 @@ function getDescription(tokens) {
       if (tokens[i].depth == 1) {
         break;
       }
-      tokens[i].depth = options.headingMap(tokens[i].depth);
+      tokens[i].depth = options.headerMap(tokens[i].depth);
     }
   }
   var descriptionTokens = tokens.splice(0, i);
@@ -177,7 +177,7 @@ function getProperty(tokens) {
       if (tokens[i].depth == 1) {
         break;
       }
-      tokens[i].depth = options.headingMap(tokens[i].depth);
+      tokens[i].depth = options.headerMap(tokens[i].depth);
     }
   }
   var bodyTokens = tokens.splice(0, i);
@@ -240,7 +240,7 @@ options.keyFromText = function (text) {
   return key;
 }
 
-options.headingMap = function (depth) {
+options.headerMap = function (depth) {
   return depth - 1;
 }
 
