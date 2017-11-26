@@ -18,7 +18,7 @@ Trello KB converts each card on the board to a self-contained object. The conver
   
   For example, if the card description is:
   
-  ``````
+  ``````text
   This is a **card**
 
   # More Details
@@ -39,7 +39,7 @@ Trello KB converts each card on the board to a self-contained object. The conver
   
   Trello KB returns the following properties:
   
-  ```
+  ```text
   "description": "<p>This is a <strong>card</strong></p>",
   "more_details": "<ul>\n<li>More text</li>\n<li><em>Even more</em> text</li>\n</ul>",
   "custom_data": {
@@ -58,7 +58,7 @@ Trello KB converts each card on the board to a self-contained object. The conver
   
   For example, if the card has a label called "Opinion Piece" and there is also an unnamed yellow label on the board, Trello KB returns the following properties:
   
-  ```
+  ```text
   "yellow": false,
   "opinion_piece": true
   ```
@@ -69,7 +69,7 @@ Trello KB converts each card on the board to a self-contained object. The conver
 
 - You must have [Node.js](https://nodejs.org) and the `trello-kb` module installed. To install the `trello-kb` module using [npm](https://www.npmjs.com/), run the following command:
   
-  ```
+  ```shell
   npm install trello-kb
   ```
 
@@ -81,7 +81,7 @@ Trello KB converts each card on the board to a self-contained object. The conver
   
   If your Trello account has access to the board, the simplest way to obtain a suitable authorization token is to visit the following URL:
   
-  ```
+  ```text
   https://trello.com/1/authorize?key=APP_KEY&name=Test%20Integration&scope=read&expiration=never&response_type=token
   ```
   
@@ -114,7 +114,7 @@ trelloKB.get(appKey, authToken, 'dMFueFPQ').then(
 
 Output:
 
-```
+```text
 Mushrooms: the definitive guide
 New burger restaurant opens downtown
 Shortage of ice cream causes panic across the city
@@ -125,6 +125,7 @@ How strawberries will transform the way you eat breakfast
 See [doc/cards.json](doc/cards.json) for a JSON version of the `cards` array in this example.
 
 # Card Object Reference
+
 For each card on the board, Trello KB returns an object with the following properties:
 
 | Property      | Description                                                                                                                                                                                                                                                                                                                                                                           |
@@ -144,6 +145,7 @@ You can use the [Trello REST API](https://developers.trello.com/v1.0/reference#c
 # Module Options
 
 ## getArchived
+
 The `getArchived` option is a Boolean that specifies whether Trello KB gets archived cards. The default value is false, which means that Trello KB gets only the cards that are visible on the board.
 
 To get all visible and archived cards:
@@ -155,9 +157,11 @@ trelloKB.options.getArchived = true;
 ```
 
 ## keyFromText
+
 The `keyFromText` option is a function that specifies how Trello KB converts label names and header text to property names. The default function returns names that contain only lower case letters, digits, and underscores. The default function may change in future releases of Trello KB.
 
 To disable conversion of label names and header text:
+
 ```javascript
 const trelloKB = require('trello-kb');
 
@@ -169,9 +173,11 @@ trelloKB.options.keyFromText = function (text) {
 > **NOTE:** Trello KB converts header text to plain text before applying `keyFromText`. To completely disable conversion for a particular header, surround the header text by backticks.
 
 ## headerMap
+
 The `headerMap` option is a function that specifies how Trello KB handles level 2-6 headers in card descriptions. The default function maps level _N_ headers to level _N_ &minus; 1 headers, which means that level 2 headers in card descriptions become level 1 headers in the HTML that Trello KB returns.
 
 To disable renumbering of headers:
+
 ```javascript
 const trelloKB = require('trello-kb');
 
