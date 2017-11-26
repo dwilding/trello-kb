@@ -111,7 +111,7 @@ Output:
     Make the perfect carrot cake
     How strawberries will transform the way you eat breakfast
 
-See [doc/cards.json](blob/master/doc/cards.json) for a JSON version of the `cards` array in this example.
+See [doc/cards.json](doc/cards.json) for a JSON version of the `cards` array in this example.
 
 # Card Object Reference
 For each card on the board, Trello KB returns an object with the following properties:
