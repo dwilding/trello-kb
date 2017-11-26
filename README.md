@@ -165,7 +165,9 @@ To disable conversion of label names and header text:
 ```javascript
 const trelloKB = require('trello-kb');
 
-trelloKB.options.keyFromText = function (text) {
+trelloKB.options.keyFromText = function (text, type) {
+  // text is a plain text string
+  // type is either 'label' or 'header'
   return text;
 };
 ```
@@ -182,6 +184,7 @@ To disable renumbering of headers:
 const trelloKB = require('trello-kb');
 
 trelloKB.options.headerMap = function (level) {
+  // level is an integer in the range 2 to 6
   return level;
 };
 ```

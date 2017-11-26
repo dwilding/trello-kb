@@ -107,7 +107,7 @@ function getLabels(api, boardID) {
       }
       labels.forEach(function (label) {
         if (label.name != '') {
-          label.name = options.keyFromText(label.name);
+          label.name = options.keyFromText(label.name, 'label');
         }
         else {
           label.name = label.color;
@@ -205,7 +205,7 @@ function keyFromHeading(tokens) {
   else {
     var html = marked.parser(tokens);
     var text = textFromHTML(html);
-    return options.keyFromText(text);
+    return options.keyFromText(text, 'header');
   }
 }
 
@@ -229,7 +229,7 @@ var options = {};
 
 options.getArchived = false;
 
-options.keyFromText = function (text) {
+options.keyFromText = function (text, type) {
   var key = text.toLowerCase();
   key = key.replace(/[^\w]+/g, '_');
   key = key.replace(/_$/, '');
