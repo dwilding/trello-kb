@@ -1,6 +1,6 @@
 # Overview of Trello KB
 
-Trello KB enables you to download a [Trello](https://trello.com) board as an array of reusable content objects. The objects in the array correspond to the cards on the board.
+Trello KB enables you to get a [Trello](https://trello.com) board as an array of content objects. The objects in the array correspond to the cards on the board.
 
 For example, you could create a magazine in Trello, then use Trello KB to get a JSON version of each article:
 
@@ -56,6 +56,62 @@ Trello KB converts each card on the board to a self-contained object. The conver
   
       "yellow": false,
       "opinion_piece": true
+
+# Get a Board
+
+## Prerequisites
+
+- You must have [Node.js](https://nodejs.org) and the `trello-kb` module installed. To install the `trello-kb` module using [npm](https://www.npmjs.com/), run the following command:
+  
+  ```shell
+  npm install trello-kb
+  ```
+
+- You must have a Trello account. If you do not have a Trello account, create an account at https://trello.com/signup. If you are building a Trello integration, Trello recommends that you create a Trello account specifically for your integration.
+  
+  You will need to provide Trello KB with the application key of your Trello account. To view the application key of your Trello account, visit https://trello.com/app-key.
+
+- You will need to provide Trello KB with an authorization token for a Trello account that has access to the board. See [Authorization](https://developers.trello.com/page/authorization) for how to request an authorization token. The authorization token must include the `read` scope.
+  
+  If your Trello account has access to the board, the simplest way to obtain a suitable authorization token is to visit the following URL:
+  
+      https://trello.com/1/authorize?key=APP_KEY&name=Test%20Integration&scope=read&expiration=never&response_type=token
+  
+  Replace `APP_KEY` by the application key of your Trello account.
+
+- You will need to provide Trello KB with the ID of the board. You can obtain the ID from the URL of the board. For example, the ID of [this board](https://trello.com/b/dMFueFPQ/food-magazine) is `dMFueFPQ`.
+
+## Example
+```javascript
+const trelloKB = require('trello-kb');
+
+// Replace this by the application key of your Trello account
+var appKey = '4dee095cf22f1793eb435fdac9e9ebec';
+
+// Replace this by a valid authorization token
+var authToken = 'ca1dd89c602cb34e8558d9451cdc7727855e3803d885aeb7b671bd64ac7d6bea';
+
+// Get the board https://trello.com/b/dMFueFPQ/food-magazine
+trelloKB.get(appKey, authToken, 'dMFueFPQ').then(
+  function (cards) {
+
+    // Print the title of each card
+    cards.forEach(function (card) {
+      console.log(card.title);
+    });
+  }
+);
+```
+
+Output:
+
+    Mushrooms: the definitive guide
+    New burger restaurant opens downtown
+    Shortage of ice cream causes panic across the city
+    Make the perfect carrot cake
+    How strawberries will transform the way you eat breakfast
+
+See [doc/cards.json](blob/master/doc/cards.json) for a JSON version of the `cards` array in this example.
 
 # Card Object Reference
 For each card on the board, Trello KB returns an object with the following properties:

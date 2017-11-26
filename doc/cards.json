@@ -1,0 +1,82 @@
+[
+  {
+    "id": "59f3d975e68c2ace90bbc3c5",
+    "title": "Mushrooms: the definitive guide",
+    "list": "November Issue",
+    "draft": false,
+    "news": false,
+    "restaurant_review": false,
+    "opinion_piece": true,
+    "yellow": false,
+    "recipe": false,
+    "description": "<p>Our writers dig into the world of mushrooms.</p>\n<ul>\n<li><strong>Porcini</strong> - These mushrooms are fantastic in pasta dishes</li>\n<li><strong>Chanterelle</strong> - These mushrooms are a perfect addition to soups</li>\n</ul>",
+    "photograph_attribution": {
+      "author": "Dan Molter",
+      "source": "https://commons.wikimedia.org/wiki/File:Lactarius_indigo_48568.jpg"
+    },
+    "cover": "https://trello-attachments.s3.amazonaws.com/59f3d8835605d24de9331f17/59f3d975e68c2ace90bbc3c5/16a0723745ca79032fb86d7e1bd94db5/640px-Lactarius_indigo_48568.jpg"
+  },
+  {
+    "id": "59f3d92ab36a387c2618d6f8",
+    "title": "New burger restaurant opens downtown",
+    "list": "November Issue",
+    "date": "2017-11-16T04:00:00.000Z",
+    "draft": true,
+    "news": true,
+    "restaurant_review": true,
+    "opinion_piece": false,
+    "yellow": false,
+    "recipe": false,
+    "description": "<p>The newest restaurant in town is a hit with our team of burger lovers.</p>",
+    "review": "<p>We reviewed the restaurant on a quiet Wednesday afternoon.</p>\n<h1 id=\"food\">Food</h1>\n<p>The burgers were grilled to perfection.</p>\n<h1 id=\"value\">Value</h1>\n<p>The value could not be better.</p>",
+    "restaurant_details": {
+      "name": "Bob's Burgers",
+      "rating": 5,
+      "zip_code": "07740",
+      "chefs": [
+        "Bob",
+        "Linda"
+      ]
+    }
+  },
+  {
+    "id": "59f3d9cd38adb116fca9b3a0",
+    "title": "Shortage of ice cream causes panic across the city",
+    "list": "October Issue",
+    "date": "2017-10-19T04:00:00.000Z",
+    "draft": false,
+    "news": true,
+    "restaurant_review": false,
+    "opinion_piece": false,
+    "yellow": false,
+    "recipe": false,
+    "description": "<p>Reports of panic buying as production hits yearly low. A Police Department spokesperson commented:</p>\n<blockquote>\n<p>Everyone needs to chill</p>\n</blockquote>"
+  },
+  {
+    "id": "59f3d9f34c8b2c69fdbbf940",
+    "title": "Make the perfect carrot cake",
+    "list": "October Issue",
+    "draft": false,
+    "news": false,
+    "restaurant_review": false,
+    "opinion_piece": false,
+    "yellow": false,
+    "recipe": true,
+    "description": "<p>This carrot cake is a true classic.</p>",
+    "ingredients": "<ul>\n<li>500g flour</li>\n<li>500g sugar</li>\n<li>5 eggs</li>\n<li>6 large carrots</li>\n</ul>",
+    "method": "<ol>\n<li>Grate the carrots</li>\n<li>Mix all the ingredients</li>\n<li>Bake in a cake tin for 1 hour</li>\n</ol>"
+  },
+  {
+    "id": "59f3db1ddcaa08fc9d440747",
+    "title": "How strawberries will transform the way you eat breakfast",
+    "list": "October Issue",
+    "draft": false,
+    "news": false,
+    "restaurant_review": false,
+    "opinion_piece": false,
+    "yellow": true,
+    "recipe": false,
+    "description": "<p>Strawberries are an <a href=\"https://en.wikipedia.org/wiki/Strawberry#Nutrients\">excellent source of Vitamin C</a>. Here are some great ways to give your morning meal a boost.</p>\n<ul>\n<li>Add strawberries to your cereal</li>\n<li>Top off your pancakes with strawberries</li>\n</ul>",
+    "sponsorship": "<p>This content was sponsored by the Strawberries Are Great corporation.</p>"
+  }
+]

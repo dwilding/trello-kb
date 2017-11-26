@@ -8,10 +8,10 @@ const textFromHTML = require('html2plaintext');
 const loadYAML = require('js-yaml').load;
 
 
-function get(developerKey, authToken, boardID) {
+function get(appKey, authToken, boardID) {
   return new Promise(function (resolvePromise, rejectPromise) {
     var results = [];
-    var api = new Trello(developerKey, authToken);
+    var api = new Trello(appKey, authToken);
     var requests = [];
     requests.push(getLists(api, boardID));
     requests.push(getLabels(api, boardID));

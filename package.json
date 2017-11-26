@@ -1,8 +1,8 @@
 {
   "name": "trello-kb",
-  "version": "0.7.0",
-  "description": "Downloads a Trello board as an array of reusable content objects",
-  "keywords": "trello knowledge base cms board card markdown yaml json html",
+  "version": "0.7.1",
+  "description": "Gets a Trello board as an array of self-contained content objects",
+  "keywords": "trello cms board card markdown yaml html",
   "author": {
     "name": "Dave Wilding",
     "email": "tech@dpw.me"
