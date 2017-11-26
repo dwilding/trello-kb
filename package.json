@@ -1,8 +1,16 @@
 {
   "name": "trello-kb",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Gets a Trello board as an array of self-contained content objects",
-  "keywords": "trello cms board card markdown yaml html",
+  "keywords": [
+    "trello",
+    "knowledge base",
+    "cms",
+    "board",
+    "markdown",
+    "yaml",
+    "html"
+  ],
   "homepage": "https://github.com/dwilding/trello-kb",
   "author": {
     "name": "Dave Wilding",

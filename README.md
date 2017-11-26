@@ -18,35 +18,39 @@ Trello KB converts each card on the board to a self-contained object. The conver
   
   For example, if the card description is:
   
-      This is a **card**
+  ``````
+  This is a **card**
 
-      # More Details
-      - More text
-      - _Even more_ text
+  # More Details
+  - More text
+  - _Even more_ text
 
-      # Custom Data
-      ```
-      key: value
-      array:
-      - one
-      - two
-      ```
+  # Custom Data
+  ```
+  key: value
+  array:
+  - one
+  - two
+  ```
 
-      # Summary
-      Summary text
+  # Summary
+  Summary text
+  ``````
   
   Trello KB returns the following properties:
   
-      "description": "<p>This is a <strong>card</strong></p>",
-      "more_details": "<ul>\n<li>More text</li>\n<li><em>Even more</em> text</li>\n</ul>",
-      "custom_data": {
-        "key": "value",
-        "array": [
-          "one",
-          "two"
-        ]
-      },
-      "summary": "<p>Summary text</p>"
+  ```
+  "description": "<p>This is a <strong>card</strong></p>",
+  "more_details": "<ul>\n<li>More text</li>\n<li><em>Even more</em> text</li>\n</ul>",
+  "custom_data": {
+    "key": "value",
+    "array": [
+      "one",
+      "two"
+    ]
+  },
+  "summary": "<p>Summary text</p>"
+  ```
   
   > **NOTE:** Trello KB does not support [MSON](https://github.com/apiaryio/mson).
 
@@ -54,8 +58,10 @@ Trello KB converts each card on the board to a self-contained object. The conver
   
   For example, if the card has a label called "Opinion Piece" and there is also an unnamed yellow label on the board, Trello KB returns the following properties:
   
-      "yellow": false,
-      "opinion_piece": true
+  ```
+  "yellow": false,
+  "opinion_piece": true
+  ```
 
 # Get a Board
 
@@ -63,7 +69,7 @@ Trello KB converts each card on the board to a self-contained object. The conver
 
 - You must have [Node.js](https://nodejs.org) and the `trello-kb` module installed. To install the `trello-kb` module using [npm](https://www.npmjs.com/), run the following command:
   
-  ```shell
+  ```
   npm install trello-kb
   ```
 
@@ -75,13 +81,16 @@ Trello KB converts each card on the board to a self-contained object. The conver
   
   If your Trello account has access to the board, the simplest way to obtain a suitable authorization token is to visit the following URL:
   
-      https://trello.com/1/authorize?key=APP_KEY&name=Test%20Integration&scope=read&expiration=never&response_type=token
+  ```
+  https://trello.com/1/authorize?key=APP_KEY&name=Test%20Integration&scope=read&expiration=never&response_type=token
+  ```
   
   Replace `APP_KEY` by the application key of your Trello account.
 
 - You will need to provide Trello KB with the ID of the board. You can obtain the ID from the URL of the board. For example, the ID of [this board](https://trello.com/b/dMFueFPQ/food-magazine) is `dMFueFPQ`.
 
 ## Example
+
 ```javascript
 const trelloKB = require('trello-kb');
 
@@ -105,11 +114,13 @@ trelloKB.get(appKey, authToken, 'dMFueFPQ').then(
 
 Output:
 
-    Mushrooms: the definitive guide
-    New burger restaurant opens downtown
-    Shortage of ice cream causes panic across the city
-    Make the perfect carrot cake
-    How strawberries will transform the way you eat breakfast
+```
+Mushrooms: the definitive guide
+New burger restaurant opens downtown
+Shortage of ice cream causes panic across the city
+Make the perfect carrot cake
+How strawberries will transform the way you eat breakfast
+```
 
 See [doc/cards.json](doc/cards.json) for a JSON version of the `cards` array in this example.
 
