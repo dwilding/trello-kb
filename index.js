@@ -61,7 +61,8 @@ function get(appKey, authToken, boardID) {
         cardShortIDs.forEach(function (cardShortID) {
           var result = cardsByShortID[cardShortID];
           Object.keys(result.tokens).forEach(function (key) {
-            result.card[key] = parseMarkdown(result.tokens[key]);
+            setMarkdownRenderer(boardID, result.card, key, cardsByShortID);
+            result.card[key] = renderMarkdown(result.tokens[key]);
           });
           results.push(result.card);
         });
@@ -237,7 +238,25 @@ function keyFromHeading(tokens) {
 }
 
 
-function parseMarkdown(tokens) {
+function setMarkdownRenderer(boardID, card, key, cardsByShortID) {
+  var renderer = new marked.Renderer();
+  marked.setOptions({
+    renderer: renderer
+  });
+
+  // Custom link rendering to handle card links
+  renderer.link = function (href, title, text) {
+    var html = '<a href="' + href + '"';
+    if (title) {
+      html += ' title="' + title + '"';
+    }
+    html += '>' + text + '</a>';
+    return html;
+  }
+}
+
+
+function renderMarkdown(tokens) {
   var output = marked.parser(tokens);
   return output.replace(/\n+$/, '');
 }
