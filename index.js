@@ -10,7 +10,6 @@ const loadYAML = require('js-yaml').load;
 
 function get(appKey, authToken, boardID) {
   return new Promise(function (resolvePromise, rejectPromise) {
-    var results = [];
     var api = new Trello(appKey, authToken);
     var requests = [];
     requests.push(getLists(api, boardID));
@@ -23,6 +22,12 @@ function get(appKey, authToken, boardID) {
       var labels = responses[1];
       var cards = responses[2];
       var subRequests = [];
+      var cardNums = [];
+      var cardsByNum = {};
+      var results = [];
+
+      // FIRST PASS: cards --> cardsByNum
+      // Get cards by short identifier, with unparsed tokens instead of HTML
       cards.forEach(function (card) {
         var obj = {
           id: card.id,
@@ -42,12 +47,24 @@ function get(appKey, authToken, boardID) {
         labels.forEach(function (label) {
           obj[label.name] = card.idLabels.includes(label.id);
         });
-        addProperties(obj, card.desc);
-        results.push(obj);
+        cardNums.push(card.idShort);
+        cardsByNum[card.idShort] = {
+          card: obj,
+          tokens: {}
+        };
+        addProperties(cardsByNum[card.idShort], card.desc);
       });
 
-      // After all sub-requests have completed
+      // SECOND PASS: cardsByNum --> results
+      // Build an array of cards and convert unparsed tokens to HTML
       Promise.all(subRequests).then(function () {
+        cardNums.forEach(function (cardNum) {
+          var result = cardsByNum[cardNum];
+          Object.keys(result.tokens).forEach(function (key) {
+            result.card[key] = parseMarkdown(result.tokens[key]);
+          });
+          results.push(result.card);
+        });
         resolvePromise(results);
       }, function (reason) {
         rejectPromise(reason);
@@ -68,7 +85,7 @@ function getCards(api, boardID) {
       filter = 'all';
     }
     var apiEndpoint = '/1/boards/' + boardID + '/cards/' + filter
-    + '?fields=id,idList,idAttachmentCover,name,due,dueComplete,idLabels,desc';
+    + '?fields=id,idShort,idList,idAttachmentCover,name,due,dueComplete,idLabels,desc';
     api.get(apiEndpoint, function(err, cards) {
       if (err) {
         rejectPromise(err);
@@ -142,13 +159,20 @@ function getLists(api, boardID) {
 }
 
 
-function addProperties(obj, markdown) {
+function addProperties(result, markdown) {
   var tokens = marked.lexer(markdown);
-  obj.description = getDescription(tokens);
+  result.card.description = null;
+  result.tokens.description = getDescription(tokens);
   var property;
   while (tokens.length > 0) {
     property = getProperty(tokens);
-    obj[property.key] = property.value;
+    if (property.parsed) {
+      result.card[property.key] = property.value;
+    }
+    else {
+      result.card[property.key] = null;
+      result.tokens[property.key] = property.value;
+    }
   }
 }
 
@@ -164,7 +188,7 @@ function getDescription(tokens) {
   }
   var descriptionTokens = tokens.splice(0, i);
   descriptionTokens.links = tokens.links;
-  return parseMarkdown(descriptionTokens);
+  return descriptionTokens;
 }
 
 
@@ -182,17 +206,20 @@ function getProperty(tokens) {
   }
   var bodyTokens = tokens.splice(0, i);
   bodyTokens.links = tokens.links;
-  var value;
   if (bodyTokens.length == 1 && bodyTokens[0].type == 'code') {
-    value = loadYAML(bodyTokens[0].text);
+    return {
+      key: key,
+      value: loadYAML(bodyTokens[0].text),
+      parsed: true
+    };
   }
   else {
-    value = parseMarkdown(bodyTokens);
+    return {
+      key: key,
+      value: bodyTokens,
+      parsed: false
+    };
   }
-  return {
-    key: key,
-    value: value
-  };
 }
 
 
