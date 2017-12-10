@@ -22,11 +22,11 @@ function get(appKey, authToken, boardID) {
       var labels = responses[1];
       var cards = responses[2];
       var subRequests = [];
-      var cardNums = [];
-      var cardsByNum = {};
+      var cardShortIDs = [];
+      var cardsByShortID = {};
       var results = [];
 
-      // FIRST PASS: cards --> cardsByNum
+      // FIRST PASS: cards --> cardsByShortID
       // Get cards by short identifier, with unparsed tokens instead of HTML
       cards.forEach(function (card) {
         var obj = {
@@ -47,19 +47,19 @@ function get(appKey, authToken, boardID) {
         labels.forEach(function (label) {
           obj[label.name] = card.idLabels.includes(label.id);
         });
-        cardNums.push(card.idShort);
-        cardsByNum[card.idShort] = {
+        cardShortIDs.push(card.shortLink);
+        cardsByShortID[card.shortLink] = {
           card: obj,
           tokens: {}
         };
-        addProperties(cardsByNum[card.idShort], card.desc);
+        addProperties(cardsByShortID[card.shortLink], card.desc);
       });
 
-      // SECOND PASS: cardsByNum --> results
+      // SECOND PASS: cardsByShortID --> results
       // Build an array of cards and convert unparsed tokens to HTML
       Promise.all(subRequests).then(function () {
-        cardNums.forEach(function (cardNum) {
-          var result = cardsByNum[cardNum];
+        cardShortIDs.forEach(function (cardShortID) {
+          var result = cardsByShortID[cardShortID];
           Object.keys(result.tokens).forEach(function (key) {
             result.card[key] = parseMarkdown(result.tokens[key]);
           });
@@ -85,7 +85,7 @@ function getCards(api, boardID) {
       filter = 'all';
     }
     var apiEndpoint = '/1/boards/' + boardID + '/cards/' + filter
-    + '?fields=id,idShort,idList,idAttachmentCover,name,due,dueComplete,idLabels,desc';
+    + '?fields=id,shortLink,idList,idAttachmentCover,name,due,dueComplete,idLabels,desc';
     api.get(apiEndpoint, function(err, cards) {
       if (err) {
         rejectPromise(err);
