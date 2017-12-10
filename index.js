@@ -61,7 +61,7 @@ function get(appKey, authToken, boardID) {
         cardShortIDs.forEach(function (cardShortID) {
           var result = cardsByShortID[cardShortID];
           Object.keys(result.tokens).forEach(function (key) {
-            setMarkdownRenderer(boardID, result.card, key, cardsByShortID);
+            setMarkdownRenderer(result.card, key, cardsByShortID);
             result.card[key] = renderMarkdown(result.tokens[key]);
           });
           results.push(result.card);
@@ -238,7 +238,7 @@ function keyFromHeading(tokens) {
 }
 
 
-function setMarkdownRenderer(boardID, card, key, cardsByShortID) {
+function setMarkdownRenderer(card, key, cardsByShortID) {
   var renderer = new marked.Renderer();
   marked.setOptions({
     renderer: renderer
