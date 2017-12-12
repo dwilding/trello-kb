@@ -54,9 +54,7 @@ Trello KB converts each card on the board to a self-contained object. The conver
   
   > **NOTE:** Trello KB does not support [MSON](https://github.com/apiaryio/mson).
 
-- **Card links → Object links**
-  
-  If you enter the [URL of a card](http://help.trello.com/article/824-sharing-links-to-cards-and-boards) in the card description, Trello displays a dynamic card link. For example:
+- **Card links → Object links.** If you enter the [URL of a card](http://help.trello.com/article/824-sharing-links-to-cards-and-boards) in the card description, Trello displays a dynamic card link. For example:
   
   ![Card link in a card description](doc/card_link.png)
   
