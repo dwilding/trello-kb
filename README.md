@@ -121,9 +121,9 @@ trelloKB.get(appKey, authToken, 'dMFueFPQ').then(
     // Print the title of each card
     cards.forEach(function (card) {
       console.log(card.title);
-    }, function (reason) {
-      console.error(reason);
     });
+  }, function (reason) {
+    console.error(reason);
   }
 );
 ```
