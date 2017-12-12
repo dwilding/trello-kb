@@ -209,7 +209,7 @@ trelloKB.options.headerMap = function (level) {
 
 ## linkTargetURL
 
-The `linkTargetURL` option is a function that specifies the URLs of object links in the HTML that Trello KB returns. The default function returns `#` followed by the value of the target object's `id` property.
+The `linkTargetURL` option is a function that specifies the URLs of object links in the HTML that Trello KB returns. The default function returns "#" followed by the value of the target object's `id` property.
 
 To replace object links by their link text:
 
@@ -224,4 +224,4 @@ trelloKB.options.linkTargetURL = function (source, key, target) {
 };
 ```
 
-> **NOTE:** When Trello KB applies `linkTargetURL`, some properties of the source and target objects may be null. This limitation only applies to properties that should contain HTML, such as the `description` property.
+> **NOTE:** When Trello KB applies `linkTargetURL`, some properties of the source and target objects may be null. This limitation only applies to properties that should contain HTML, such as the `description` properties.
