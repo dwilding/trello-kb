@@ -66,7 +66,7 @@ Trello KB converts each card on the board to a self-contained object. The conver
   <a href="#59f3d9f34c8b2c69fdbbf940">Make the perfect carrot cake</a>
   ```
   
-  You should use the [linkTargetURL](#linkTargetURL) option to customize the URLs of object links according to your needs.
+  You should use the [linkTargetURL](#linktargeturl) option to customize the URLs of object links according to your needs.
   
   > **NOTE:** Trello KB only supports links to cards on the same board. Trello KB does not support links to comments, actions, or boards.
 
@@ -209,7 +209,7 @@ trelloKB.options.headerMap = function (level) {
 
 ## linkTargetURL
 
-The `linkTargetURL` option is a function that specifies the URLs of object links in the HTML that Trello KB returns. The default function returns `#` followed by the value of target object's `id` property.
+The `linkTargetURL` option is a function that specifies the URLs of object links in the HTML that Trello KB returns. The default function returns `#` followed by the value of the target object's `id` property.
 
 To replace object links by their link text:
 
