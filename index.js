@@ -5,6 +5,7 @@
 const Trello = require('node-trello');
 const marked = require('marked');
 const textFromHTML = require('html2plaintext');
+const escape = require('escape-html');
 const loadYAML = require('js-yaml').load;
 
 
@@ -62,7 +63,13 @@ function get(appKey, authToken, boardID) {
           var result = cardsByShortID[cardShortID];
           Object.keys(result.tokens).forEach(function (key) {
             setMarkdownRenderer(result.card, key, cardsByShortID);
-            result.card[key] = renderMarkdown(result.tokens[key]);
+            try {
+              result.card[key] = renderMarkdown(result.tokens[key]);
+            }
+            catch (error) {
+              rejectPromise(error);
+              return;
+            }
           });
           results.push(result.card);
         });
@@ -87,9 +94,9 @@ function getCards(api, boardID) {
     }
     var apiEndpoint = '/1/boards/' + boardID + '/cards/' + filter
     + '?fields=id,shortLink,idList,idAttachmentCover,name,due,dueComplete,idLabels,desc';
-    api.get(apiEndpoint, function(err, cards) {
-      if (err) {
-        rejectPromise(err);
+    api.get(apiEndpoint, function(error, cards) {
+      if (error) {
+        rejectPromise(error);
         return;
       }
       resolvePromise(cards);
@@ -102,9 +109,9 @@ function addCardCover(api, card, obj) {
   return new Promise(function (resolvePromise, rejectPromise) {
     var apiEndpoint = '/1/cards/' + card.id
     + '/attachments/' + card.idAttachmentCover + '?fields=id,url';
-    api.get(apiEndpoint, function(err, attachment) {
-      if (err) {
-        rejectPromise(err);
+    api.get(apiEndpoint, function(error, attachment) {
+      if (error) {
+        rejectPromise(error);
         return;
       }
       obj.cover = attachment.url;
@@ -118,9 +125,9 @@ function getLabels(api, boardID) {
   return new Promise(function (resolvePromise, rejectPromise) {
     var apiEndpoint = '/1/boards/' + boardID
     + '/labels?fields=id,name,color';
-    api.get(apiEndpoint, function(err, labels) {
-      if (err) {
-        rejectPromise(err);
+    api.get(apiEndpoint, function(error, labels) {
+      if (error) {
+        rejectPromise(error);
         return;
       }
       labels.forEach(function (label) {
@@ -146,9 +153,9 @@ function getLists(api, boardID) {
     }
     var apiEndpoint = '/1/boards/' + boardID + '/lists/' + filter
     + '?fields=id,name';
-    api.get(apiEndpoint, function(err, lists) {
-      if (err) {
-        rejectPromise(err);
+    api.get(apiEndpoint, function(error, lists) {
+      if (error) {
+        rejectPromise(error);
         return;
       }
       lists.forEach(function (list) {
@@ -246,13 +253,79 @@ function setMarkdownRenderer(card, key, cardsByShortID) {
 
   // Custom link rendering to handle card links
   renderer.link = function (href, title, text) {
-    var html = '<a href="' + href + '"';
-    if (title) {
-      html += ' title="' + title + '"';
+    var trelloURLFormat = /^https:\/\/trello\.com\/(b|c)\/([\w]{8})([\/\w-]+)?(#.*)?$/;
+    var trelloURL = href.match(trelloURLFormat);
+
+    // Link does not point to a card or a board
+    if (trelloURL === null) {
+      return renderLink(href, title, text);
     }
-    html += '>' + text + '</a>';
-    return html;
+
+    // Link does not point to a card
+    if (trelloURL[1] != 'c') {
+      throw {
+        name: 'UnresolvedTrelloLink',
+        message: 'Link target is an unknown card',
+        context: {
+          id: card.id,
+          title: card.title,
+          key: key,
+          href: href
+        }
+      };
+    }
+
+    // Link points to a card element (e.g., a comment or an action)
+    if (trelloURL[4] && trelloURL[4] != '#') {
+      console.log(trelloURL[4]);
+      throw {
+        name: 'UnsupportedTrelloLink',
+        message: 'Link target is a card element',
+        context: {
+          id: card.id,
+          title: card.title,
+          key: key,
+          href: href
+        }
+      };
+    }
+
+    // Link does not point to a valid card
+    if (!cardsByShortID.hasOwnProperty(trelloURL[2])) {
+      throw {
+        name: 'UnresolvedTrelloLink',
+        message: 'Link target is an unknown card',
+        context: {
+          id: card.id,
+          title: card.title,
+          key: key,
+          href: href
+        }
+      };
+    }
+
+    var target = cardsByShortID[trelloURL[2]].card;
+    if (text == href) {
+      text = escape(target.title);
+    }
+    href = escape(options.linkTargetURL(card, key, target));
+    if (href != '') {
+      return renderLink(href, title, text);
+    }
+    else {
+      return text;
+    }
   }
+}
+
+
+function renderLink(href, title, text) {
+  var html = '<a href="' + href + '"';
+  if (title) {
+    html += ' title="' + title + '"';
+  }
+  html += '>' + text + '</a>';
+  return html;
 }
 
 
@@ -288,6 +361,10 @@ options.keyFromText = function (text, type) {
 
 options.headerMap = function (depth) {
   return depth - 1;
+}
+
+options.linkTargetURL = function (source, key, target) {
+  return '#' + target.id;
 }
 
 

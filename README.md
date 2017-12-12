@@ -54,6 +54,22 @@ Trello KB converts each card on the board to a self-contained object. The conver
   
   > **NOTE:** Trello KB does not support [MSON](https://github.com/apiaryio/mson).
 
+- **Card links → Object links**
+  
+  If you enter the [URL of a card](http://help.trello.com/article/824-sharing-links-to-cards-and-boards) in the card description, Trello displays a dynamic card link. For example:
+  
+  ![Card link in a card description](doc/card_link.png)
+  
+  Trello KB converts card links to object links. For example, if you enter `https://trello.com/c/7l47ZiYm` in the card description, Trello KB produces the following object link:
+  
+  ```html
+  <a href="#59f3d9f34c8b2c69fdbbf940">Make the perfect carrot cake</a>
+  ```
+  
+  You should use the [linkTargetURL](#linkTargetURL) option to customize the URLs of object links according to your needs.
+  
+  > **NOTE:** Trello KB only supports links to cards on the same board. Trello KB does not support links to comments, actions, or boards.
+
 - **Labels → Booleans.** Trello lets you [add labels to cards](http://help.trello.com/article/797-adding-labels-to-cards). For each label on the board, Trello KB returns a Boolean property that indicates whether the card has the label.
   
   For example, if the card has a label called "Opinion Piece" and there is also an unnamed yellow label on the board, Trello KB returns the following properties:
@@ -107,6 +123,8 @@ trelloKB.get(appKey, authToken, 'dMFueFPQ').then(
     // Print the title of each card
     cards.forEach(function (card) {
       console.log(card.title);
+    }, function (reason) {
+      console.error(reason);
     });
   }
 );
@@ -188,3 +206,22 @@ trelloKB.options.headerMap = function (level) {
   return level;
 };
 ```
+
+## linkTargetURL
+
+The `linkTargetURL` option is a function that specifies the URLs of object links in the HTML that Trello KB returns. The default function returns `#` followed by the value of target object's `id` property.
+
+To replace object links by their link text:
+
+```javascript
+const trelloKB = require('trello-kb');
+
+trelloKB.options.linkTargetURL = function (source, key, target) {
+  // source is the object that contains the link
+  // key is the name of the property that contains the link
+  // target is the object that the link points to
+  return '';
+};
+```
+
+> **NOTE:** When Trello KB applies `linkTargetURL`, some properties of the source and target objects may be null. This limitation only applies to properties that should contain HTML, such as the `description` property.
