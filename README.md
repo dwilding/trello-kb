@@ -60,7 +60,7 @@ Trello KB converts each card on the board to a self-contained object. The conver
   
   ![Card link in a card description](doc/card_link.png)
   
-  Trello KB converts card links to object links. For example, if you enter `https://trello.com/c/7l47ZiYm` in the card description, Trello KB produces the following object link:
+  Trello KB converts card links to object links. For example, if you enter https://trello.com/c/7l47ZiYm in the card description, Trello KB produces the following object link:
   
   ```html
   <a href="#59f3d9f34c8b2c69fdbbf940">Make the perfect carrot cake</a>
@@ -103,7 +103,7 @@ Trello KB converts each card on the board to a self-contained object. The conver
   
   Replace `APP_KEY` by the application key of your Trello account.
 
-- You will need to provide Trello KB with the ID of the board. You can obtain the ID from the URL of the board. For example, the ID of [this board](https://trello.com/b/dMFueFPQ/food-magazine) is `dMFueFPQ`.
+- You will need to provide Trello KB with the ID of the board. You can obtain the ID from the URL of the board. For example, the ID of [this board](https://trello.com/b/dMFueFPQ/food-magazine) is "dMFueFPQ".
 
 ## Example
 
