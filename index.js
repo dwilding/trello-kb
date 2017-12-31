@@ -53,7 +53,13 @@ function get(appKey, authToken, boardID) {
           card: obj,
           tokens: {}
         };
-        addProperties(cardsByShortID[card.shortLink], card.desc);
+        try {
+          addProperties(cardsByShortID[card.shortLink], card.desc);
+        }
+        catch (error) {
+          rejectPromise(error);
+          return;
+        }
       });
 
       // SECOND PASS: cardsByShortID --> results
