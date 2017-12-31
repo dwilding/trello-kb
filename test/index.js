@@ -1,6 +1,9 @@
 'use strict';
 
-const thisModule = require('../index');
+const path = require('path');
+const testPath = path.dirname(require.main.filename);
+const modulePath = path.join(testPath, '..');
+const thisModule = require(modulePath);
 
 // Load environment variables from .env file
 require('dotenv').load();
