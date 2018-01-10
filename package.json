@@ -1,6 +1,6 @@
 {
   "name": "trello-kb",
-  "version": "0.9.5",
+  "version": "1.0.0",
   "description": "Gets a Trello board as an array of self-contained content objects",
   "keywords": [
     "trello",
@@ -27,7 +27,7 @@
   "main": "index.js",
   "dependencies": {
     "node-trello": "^1.2.1",
-    "marked": "^0.3.6",
+    "marked": "^0.3.12",
     "html2plaintext": "^1.1.1",
     "escape-html": "^1.0.3",
     "js-yaml": "^3.9.1"

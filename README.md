@@ -174,7 +174,7 @@ trelloKB.options.getArchived = true;
 
 ## keyFromText
 
-The `keyFromText` option is a function that specifies how Trello KB converts label names and header text to property names. The default function returns names that contain only lower case letters, digits, and underscores. The default function may change in future releases of Trello KB.
+The `keyFromText` option is a function that specifies how Trello KB converts label names and header text to property names. The default function returns names that contain only lower case letters, digits, and underscores.
 
 To disable conversion of label names and header text:
 
