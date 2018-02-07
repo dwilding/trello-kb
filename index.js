@@ -209,7 +209,7 @@ function getProperty(tokens) {
   var key = keyFromHeading(headingTokens);
   for (var i = 0; i < tokens.length; i++) {
     if (tokens[i].type == 'heading' && tokens[i].depth == 1) {
-      break
+      break;
     }
   }
   var bodyTokens = tokens.splice(0, i);
