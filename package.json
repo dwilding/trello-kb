@@ -1,6 +1,6 @@
 {
   "name": "trello-kb",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Gets a Trello board as an array of self-contained content objects",
   "keywords": [
     "trello",

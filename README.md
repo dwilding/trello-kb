@@ -199,11 +199,34 @@ To disable renumbering of headers:
 ```javascript
 const trelloKB = require('trello-kb');
 
-trelloKB.options.headerMap = function (level) {
+trelloKB.options.headerMap = function (source, key, level) {
+  // source is the object that contains the header
+  // key is the name of the property that contains the header
   // level is an integer in the range 2 to 6
   return level;
 };
 ```
+
+> **NOTE:** When Trello KB applies `headerMap`, some properties of the source object may be null. This limitation only applies to properties that should contain HTML, such as the `description` property.
+
+## headerId
+
+The `headerId` option is a function that specifies the IDs of headers in the HTML that Trello KB returns. The default function returns IDs that contain only lower case letters, digits, and hyphens.
+
+To remove IDs from headers:
+
+```javascript
+const trelloKB = require('trello-kb');
+
+trelloKB.options.headerId = function (source, key, text) {
+  // source is the object that contains the header
+  // key is the name of the property that contains the header
+  // text is a plain text version of the header text
+  return '';
+};
+```
+
+> **NOTE:** When Trello KB applies `headerId`, some properties of the source object may be null. This limitation only applies to properties that should contain HTML, such as the `description` property.
 
 ## linkTargetURL
 

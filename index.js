@@ -9,13 +9,13 @@ const escape = require('escape-html');
 const loadYAML = require('js-yaml').load;
 
 
-function get(appKey, authToken, boardID) {
+function get(appKey, authToken, boardId) {
   return new Promise(function (resolvePromise, rejectPromise) {
     var api = new Trello(appKey, authToken);
     var requests = [];
-    requests.push(getLists(api, boardID));
-    requests.push(getLabels(api, boardID));
-    requests.push(getCards(api, boardID));
+    requests.push(getLists(api, boardId));
+    requests.push(getLabels(api, boardId));
+    requests.push(getCards(api, boardId));
 
     // After all requests have completed
     Promise.all(requests).then(function (responses) {
@@ -23,11 +23,11 @@ function get(appKey, authToken, boardID) {
       var labels = responses[1];
       var cards = responses[2];
       var subRequests = [];
-      var cardShortIDs = [];
-      var cardsByShortID = {};
+      var cardShortIds = [];
+      var cardsByShortId = {};
       var results = [];
 
-      // FIRST PASS: cards --> cardsByShortID
+      // FIRST PASS: cards --> cardsByShortId
       // Get cards by short identifier, with unparsed tokens instead of HTML
       cards.forEach(function (card) {
         var obj = {
@@ -48,13 +48,13 @@ function get(appKey, authToken, boardID) {
         labels.forEach(function (label) {
           obj[label.name] = card.idLabels.includes(label.id);
         });
-        cardShortIDs.push(card.shortLink);
-        cardsByShortID[card.shortLink] = {
+        cardShortIds.push(card.shortLink);
+        cardsByShortId[card.shortLink] = {
           card: obj,
           tokens: {}
         };
         try {
-          addProperties(cardsByShortID[card.shortLink], card.desc);
+          addProperties(cardsByShortId[card.shortLink], card.desc);
         }
         catch (error) {
           rejectPromise(error);
@@ -62,13 +62,13 @@ function get(appKey, authToken, boardID) {
         }
       });
 
-      // SECOND PASS: cardsByShortID --> results
+      // SECOND PASS: cardsByShortId --> results
       // Build an array of cards and convert unparsed tokens to HTML
       Promise.all(subRequests).then(function () {
-        cardShortIDs.forEach(function (cardShortID) {
-          var result = cardsByShortID[cardShortID];
+        cardShortIds.forEach(function (cardShortId) {
+          var result = cardsByShortId[cardShortId];
           Object.keys(result.tokens).forEach(function (key) {
-            setMarkdownRenderer(result.card, key, cardsByShortID);
+            setMarkdownRenderer(result.card, key, cardsByShortId);
             try {
               result.card[key] = renderMarkdown(result.tokens[key]);
             }
@@ -92,13 +92,13 @@ function get(appKey, authToken, boardID) {
 }
 
 
-function getCards(api, boardID) {
+function getCards(api, boardId) {
   return new Promise(function (resolvePromise, rejectPromise) {
     var filter = 'visible';
     if (options.getArchived) {
       filter = 'all';
     }
-    var apiEndpoint = '/1/boards/' + boardID + '/cards/' + filter
+    var apiEndpoint = '/1/boards/' + boardId + '/cards/' + filter
     + '?fields=id,shortLink,idList,idAttachmentCover,name,due,dueComplete,idLabels,desc';
     api.get(apiEndpoint, function(error, cards) {
       if (error) {
@@ -127,9 +127,9 @@ function addCardCover(api, card, obj) {
 }
 
 
-function getLabels(api, boardID) {
+function getLabels(api, boardId) {
   return new Promise(function (resolvePromise, rejectPromise) {
-    var apiEndpoint = '/1/boards/' + boardID
+    var apiEndpoint = '/1/boards/' + boardId
     + '/labels?fields=id,name,color';
     api.get(apiEndpoint, function(error, labels) {
       if (error) {
@@ -150,14 +150,14 @@ function getLabels(api, boardID) {
 }
 
 
-function getLists(api, boardID) {
+function getLists(api, boardId) {
   return new Promise(function (resolvePromise, rejectPromise) {
     var hash = {};
     var filter = 'open';
     if (options.getArchived) {
       filter = 'all';
     }
-    var apiEndpoint = '/1/boards/' + boardID + '/lists/' + filter
+    var apiEndpoint = '/1/boards/' + boardId + '/lists/' + filter
     + '?fields=id,name';
     api.get(apiEndpoint, function(error, lists) {
       if (error) {
@@ -193,11 +193,8 @@ function addProperties(result, markdown) {
 
 function getDescription(tokens) {
   for (var i = 0; i < tokens.length; i++) {
-    if (tokens[i].type == 'heading') {
-      if (tokens[i].depth == 1) {
-        break;
-      }
-      tokens[i].depth = options.headerMap(tokens[i].depth);
+    if (tokens[i].type == 'heading' && tokens[i].depth == 1) {
+      break;
     }
   }
   var descriptionTokens = tokens.splice(0, i);
@@ -211,11 +208,8 @@ function getProperty(tokens) {
   headingTokens.links = tokens.links;
   var key = keyFromHeading(headingTokens);
   for (var i = 0; i < tokens.length; i++) {
-    if (tokens[i].type == 'heading') {
-      if (tokens[i].depth == 1) {
-        break;
-      }
-      tokens[i].depth = options.headerMap(tokens[i].depth);
+    if (tokens[i].type == 'heading' && tokens[i].depth == 1) {
+      break
     }
   }
   var bodyTokens = tokens.splice(0, i);
@@ -251,7 +245,7 @@ function keyFromHeading(tokens) {
 }
 
 
-function setMarkdownRenderer(card, key, cardsByShortID) {
+function setMarkdownRenderer(card, key, cardsByShortId) {
   var renderer = new marked.Renderer();
   marked.setOptions({
     renderer: renderer
@@ -297,7 +291,7 @@ function setMarkdownRenderer(card, key, cardsByShortID) {
     }
 
     // Link does not point to a valid card
-    if (!cardsByShortID.hasOwnProperty(trelloURL[2])) {
+    if (!cardsByShortId.hasOwnProperty(trelloURL[2])) {
       throw {
         name: 'UnresolvedTrelloLink',
         message: 'Link target is an unknown card',
@@ -310,7 +304,7 @@ function setMarkdownRenderer(card, key, cardsByShortID) {
       };
     }
 
-    var target = cardsByShortID[trelloURL[2]].card;
+    var target = cardsByShortId[trelloURL[2]].card;
     if (text == href) {
       text = escape(target.title);
     }
@@ -322,6 +316,29 @@ function setMarkdownRenderer(card, key, cardsByShortID) {
       return text;
     }
   }
+
+  // Custom header rendering
+  renderer.heading = function (text, level) {
+    level = options.headerMap(card, key, level);
+
+    // Header level is invalid
+    if (level < 1 || level > 6) {
+      throw {
+        name: 'InvalidHeaderLevel',
+        message: 'Header level is not in the range 1 to 6',
+        context: {
+          id: card.id,
+          title: card.title,
+          key: key,
+          level: level
+        }
+      };
+    }
+
+    var textPlain = textFromHTML(text);
+    var id = escape(options.headerId(card, key, textPlain));
+    return renderHeader(level, id, text);
+  }
 }
 
 
@@ -331,6 +348,16 @@ function renderLink(href, title, text) {
     html += ' title="' + title + '"';
   }
   html += '>' + text + '</a>';
+  return html;
+}
+
+
+function renderHeader(level, id, text) {
+  var html = '<h' + level;
+  if (id != '') {
+    html += ' id="' + id + '"';
+  }
+  html += '>' + text + '</h1>\n';
   return html;
 }
 
@@ -365,8 +392,16 @@ options.keyFromText = function (text, type) {
   return key;
 }
 
-options.headerMap = function (depth) {
-  return depth - 1;
+options.headerMap = function (source, key, level) {
+  return level - 1;
+}
+
+options.headerId = function (source, key, text) {
+  var id = text.toLowerCase();
+  id = id.replace(/[^\w]+/g, '-');
+  id = id.replace(/-$/, '');
+  id = id.replace(/^-/, '');
+  return id;
 }
 
 options.linkTargetURL = function (source, key, target) {
