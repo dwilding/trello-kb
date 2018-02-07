@@ -11,6 +11,14 @@ const loadYAML = require('js-yaml').load;
 
 function get(appKey, authToken, boardId) {
   return new Promise(function (resolvePromise, rejectPromise) {
+
+    // Reset Markdown renderer
+    // Fixes https://github.com/dwilding/trello-kb/issues/4
+    marked.setOptions({
+      renderer: new marked.Renderer()
+    });
+
+    // Trello API requests
     var api = new Trello(appKey, authToken);
     var requests = [];
     requests.push(getLists(api, boardId));
