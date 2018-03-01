@@ -16,8 +16,8 @@ var promise = thisModule.get(
 );
 
 // Display the response
-promise.then(function (cards) {
+promise.then((cards) => {
   console.log(JSON.stringify(cards, null, 2));
-}, function (reason) {
+}, (reason) => {
   console.error(reason);
 });
