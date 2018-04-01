@@ -53,7 +53,7 @@ class Converter {
             title: card.name,
             list: lists[card.idList]
           };
-          if (card.idAttachmentCover !== null) {
+          if (this.options.getCovers && card.idAttachmentCover !== null) {
             subRequests.push(this.addCardCover(card, obj));
           }
           if (card.due !== null) {
@@ -386,6 +386,9 @@ class Converter {
 
     // By default, only get the cards that are visible on the board
     options.getArchived = false;
+
+    // By default, get the URLs of card covers
+    options.getCovers = true;
 
     // Specifies how to convert label names and header text to property names
     options.keyFromText = (text, type) => {

@@ -149,7 +149,7 @@ For each card on the board, Trello KB returns an object with the following prope
 | `id`          | <p>The Trello ID of the card.</p>                                                                                                                                                                                                                                                                                                                                                     |
 | `title`       | <p>The card title.</p>                                                                                                                                                                                                                                                                                                                                                                |
 | `list`        | <p>The name of the list that the card is in.</p>                                                                                                                                                                                                                                                                                                                                      |
-| `cover`       | <p>The URL of the card cover.</p><p>Only available if [a cover image has been attached to the card](http://help.trello.com/article/769-adding-attachments-to-cards).</p>                                                                                                                                                                                                              |
+| `cover`       | <p>The URL of the card cover.</p><p>Only available if [a cover image has been attached to the card](http://help.trello.com/article/769-adding-attachments-to-cards).</p><p>You can use the [getCovers](#getcovers) option to control whether Trello KB returns this property.</p>                                                                                                     |
 | `date`        | <p>The due date of the card.</p><p>Only available if [a due date has been added to the card](http://help.trello.com/article/794-adding-due-dates-to-cards).</p>                                                                                                                                                                                                                       |
 | `draft`       | <p>True if the card has a due date but the due date has not been marked as complete; false otherwise.</p>                                                                                                                                                                                                                                                                             |
 | _label_       | <p>For each label on the board, a Boolean that indicates whether the card has the label. See [Main Features](#main-features).</p><p>You can use the [keyFromText](#keyfromtext) option to control how Trello KB converts label names to property names.</p>                                                                                                                           |
@@ -170,6 +170,18 @@ To get all visible and archived cards:
 const trelloKB = require('trello-kb');
 
 trelloKB.options.getArchived = true;
+```
+
+## getCovers
+
+The `getCovers` option is a Boolean that specifies whether Trello KB gets the URLs of card covers. The default value is true, which means that if a cover image has been attached to a card, Trello KB returns the URL of the image in a property called `cover`.
+
+To ignore card covers:
+
+```javascript
+const trelloKB = require('trello-kb');
+
+trelloKB.options.getCovers = false;
 ```
 
 ## keyFromText
