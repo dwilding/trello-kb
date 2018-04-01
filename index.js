@@ -64,7 +64,7 @@ class Converter {
             obj.draft = false;
           }
           labels.forEach((label) => {
-            obj[label.name] = card.idLabels.includes(label.id);
+            obj[label.name] = (card.idLabels.indexOf(label.id) != -1);
           });
           cardShortIds.push(card.shortLink);
           cardsByShortId[card.shortLink] = {
