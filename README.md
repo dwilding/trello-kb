@@ -276,7 +276,7 @@ The `strictWarnings` option is a Boolean that specifies whether Trello KB return
 - A card description contains a link to a comment, action, or board
 - A card description contains a link to a card that Trello KB did not get
 - [headerMap](#headermap) returns a level that is less than 1 or greater than 6
-- [headerMap](#headermap), [headerId](#headerid), or [linkTargetURL](#linktargeturl) produces an error
+- [headerMap](#headermap), [headerId](#headerid), or [linkTargetURL](#linktargeturl) generates an error
 
 To ignore these conditions:
 
