@@ -24,10 +24,14 @@ class Converter {
       tables: false
     });
     this.options = Converter.defaultOptions;
+    this.results = {};
+    this.warnings = [];
   }
 
   convert() {
     return new Promise((resolvePromise, rejectPromise) => {
+      this.results = {};
+      this.warnings = [];
 
       // Trello API requests
       var requests = [];
@@ -42,10 +46,9 @@ class Converter {
         var cards = responses[2];
         var subRequests = [];
         var cardShortIds = [];
-        var cardsByShortId = {};
-        var results = [];
+        var converted = [];
 
-        // FIRST PASS: cards --> cardsByShortId
+        // FIRST PASS: cards --> this.results
         // Get cards by short identifier, with unparsed tokens instead of HTML
         cards.forEach((card) => {
           var obj = {
@@ -67,51 +70,40 @@ class Converter {
             obj[label.name] = (card.idLabels.indexOf(label.id) != -1);
           });
           cardShortIds.push(card.shortLink);
-          cardsByShortId[card.shortLink] = {
+          this.results[card.shortLink] = {
             card: obj,
             tokens: {}
           };
-          try {
-            this.addProperties(
-              cardsByShortId[card.shortLink],
-              card.desc
-            );
-          }
-          catch (error) {
-            rejectPromise(error);
-            return;
-          }
+          this.addProperties(card.shortLink, card.desc);
         });
 
-        // SECOND PASS: cardsByShortId --> results
+        // SECOND PASS: this.results --> converted
         // Build an array of cards and convert unparsed tokens to HTML
         Promise.all(subRequests).then(() => {
           cardShortIds.forEach((cardShortId) => {
-            var result = cardsByShortId[cardShortId];
+            var result = this.results[cardShortId];
             Object.keys(result.tokens).forEach((key) => {
-              var renderer = this.customMarkdownRenderer(
-                result.card,
-                key,
-                cardsByShortId
-              );
+              var renderer = this.customMarkdownRenderer(cardShortId, key);
               var parser = new marked.Parser({
                 gfm: true,
                 breaks: true,
                 tables: false,
                 renderer: renderer
               });
-              try {
-                var html = parser.parse(result.tokens[key]);
-              }
-              catch (error) {
-                rejectPromise(error);
-                return;
-              }
+              var html = parser.parse(result.tokens[key]);
               result.card[key] = html.replace(/\n+$/, '');
             });
-            results.push(result.card);
+            converted.push(result.card);
           });
-          resolvePromise(results);
+          if (this.options.strictWarnings && this.warnings.length > 0) {
+            rejectPromise({
+              name: 'BoardConversionWarnings',
+              message: 'Warnings generated during conversion of board',
+              warnings: this.warnings
+            });
+            return;
+          }
+          resolvePromise(converted);
         }, (reason) => {
           rejectPromise(reason);
         });
@@ -200,13 +192,14 @@ class Converter {
     });
   }
 
-  addProperties(result, markdown) {
+  addProperties(cardShortId, markdown) {
+    var result = this.results[cardShortId];
     var tokens = this.lexer.lex(markdown);
     result.card.description = null;
     result.tokens.description = this.getDescription(tokens);
     var property;
     while (tokens.length > 0) {
-      property = this.getProperty(tokens);
+      property = this.getProperty(cardShortId, tokens);
       if (property.parsed) {
         result.card[property.key] = property.value;
       }
@@ -228,7 +221,8 @@ class Converter {
     return descriptionTokens;
   }
 
-  getProperty(tokens) {
+  getProperty(cardShortId, tokens) {
+    var card = this.results[cardShortId].card;
     var headingTokens = tokens.splice(0, 1);
     headingTokens.links = tokens.links;
     var key = this.keyFromHeading(headingTokens);
@@ -240,9 +234,25 @@ class Converter {
     var bodyTokens = tokens.splice(0, i);
     bodyTokens.links = tokens.links;
     if (bodyTokens.length == 1 && bodyTokens[0].type == 'code') {
+      var value = {};
+      try {
+        value = loadYAML(bodyTokens[0].text);
+      }
+      catch (error) {
+        this.warn({
+          warning: 'InvalidYAML',
+          message: error.reason,
+          context: {
+            id: card.id,
+            title: card.title,
+            url: 'https://trello.com/c/' + cardShortId,
+            key: key
+          }
+        });
+      }
       return {
         key: key,
-        value: loadYAML(bodyTokens[0].text),
+        value: value,
         parsed: true
       };
     }
@@ -268,7 +278,8 @@ class Converter {
     }
   }
 
-  customMarkdownRenderer(card, key, cardsByShortId) {
+  customMarkdownRenderer(cardShortId, key) {
+    var card = this.results[cardShortId].card;
     var renderer = new marked.Renderer();
 
     // Custom link rendering to handle card links
@@ -283,54 +294,75 @@ class Converter {
 
       // Link does not point to a card
       if (trelloURL[1] != 'c') {
-        throw {
-          name: 'UnresolvedTrelloLink',
-          message: 'Link target is an unknown card',
+        this.warn({
+          warning: 'UnsupportedTrelloLink',
+          message: 'Link target is not a card',
           context: {
             id: card.id,
             title: card.title,
+            url: 'https://trello.com/c/' + cardShortId,
             key: key,
             href: href
           }
-        };
+        });
+        return Converter.renderLink(href, title, text);
       }
 
       // Link points to a card element (e.g., a comment or an action)
       if (trelloURL[4] && trelloURL[4] != '#') {
-        console.log(trelloURL[4]);
-        throw {
-          name: 'UnsupportedTrelloLink',
+        this.warn({
+          warning: 'UnsupportedTrelloLink',
           message: 'Link target is a card element',
           context: {
             id: card.id,
             title: card.title,
+            url: 'https://trello.com/c/' + cardShortId,
             key: key,
             href: href
           }
-        };
+        });
+        return Converter.renderLink(href, title, text);
       }
 
       // Link does not point to a valid card
-      if (!cardsByShortId.hasOwnProperty(trelloURL[2])) {
-        throw {
-          name: 'UnresolvedTrelloLink',
+      if (!this.results.hasOwnProperty(trelloURL[2])) {
+        this.warn({
+          warning: 'UnresolvedTrelloLink',
           message: 'Link target is an unknown card',
           context: {
             id: card.id,
             title: card.title,
+            url: 'https://trello.com/c/' + cardShortId,
             key: key,
             href: href
           }
-        };
+        });
+        return Converter.renderLink(href, title, text);
       }
 
-      var target = cardsByShortId[trelloURL[2]].card;
+      var target = this.results[trelloURL[2]].card;
       if (text == href) {
         text = escape(target.title);
       }
-      href = escape(this.options.linkTargetURL(card, key, target));
+      href = '';
+      try {
+        href = this.options.linkTargetURL(card, key, target);
+      }
+      catch (error) {
+        this.warn({
+          warning: 'ErrorInLinkTargetURL',
+          message: error.message,
+          context: {
+            id: card.id,
+            title: card.title,
+            url: 'https://trello.com/c/' + cardShortId,
+            key: key,
+            href: href
+          }
+        });
+      }
       if (href != '') {
-        return Converter.renderLink(href, title, text);
+        return Converter.renderLink(escape(href), title, text);
       }
       else {
         return text;
@@ -339,28 +371,69 @@ class Converter {
 
     // Custom header rendering
     renderer.heading = (text, level) => {
-      level = this.options.headerMap(card, key, level);
+      try {
+        level = this.options.headerMap(card, key, level);
+      }
+      catch (error) {
+        this.warn({
+          warning: 'ErrorInHeaderMap',
+          message: error.message,
+          context: {
+            id: card.id,
+            title: card.title,
+            url: 'https://trello.com/c/' + cardShortId,
+            key: key,
+            level: level
+          }
+        });
+      }
 
       // Header level is invalid
       if (level < 1 || level > 6) {
-        throw {
-          name: 'InvalidHeaderLevel',
+        this.warn({
+          warning: 'InvalidHeaderLevel',
           message: 'Header level is not in the range 1 to 6',
           context: {
             id: card.id,
             title: card.title,
+            url: 'https://trello.com/c/' + cardShortId,
             key: key,
             level: level
           }
-        };
+        });
+        level = Math.max(level, 1);
+        level = Math.min(level, 6);
       }
 
       var textPlain = textFromHTML(text);
-      var id = escape(this.options.headerId(card, key, textPlain));
-      return Converter.renderHeader(level, id, text);
+      var id = '';
+      try {
+        id = this.options.headerId(card, key, textPlain);
+      }
+      catch (error) {
+        this.warn({
+          warning: 'ErrorInHeaderId',
+          message: error.message,
+          context: {
+            id: card.id,
+            title: card.title,
+            url: 'https://trello.com/c/' + cardShortId,
+            key: key,
+            text: textPlain
+          }
+        });
+      }
+      return Converter.renderHeader(level, escape(id), text);
     }
 
     return renderer;
+  }
+
+  warn(warning) {
+    if (!this.options.strictWarnings) {
+      console.warn('Warning: ' + warning.message);
+    }
+    this.warnings.push(warning);
   }
 
   static renderLink(href, title, text) {
@@ -377,7 +450,7 @@ class Converter {
     if (id != '') {
       html += ' id="' + id + '"';
     }
-    html += '>' + text + '</h1>\n';
+    html += '>' + text + '</h' + level + '>\n';
     return html;
   }
 
@@ -400,12 +473,12 @@ class Converter {
         key = '_';
       }
       return key;
-    }
+    };
 
     // Specifies how to handle level 2-6 headers in card descriptions
     options.headerMap = (source, key, level) => {
       return level - 1;
-    }
+    };
 
     // Specifies the IDs of headers in the HTML output
     options.headerId = (source, key, text) => {
@@ -414,12 +487,14 @@ class Converter {
       id = id.replace(/-$/, '');
       id = id.replace(/^-/, '');
       return id;
-    }
+    };
 
     // Specifies the URLs of object links in the HTML output
     options.linkTargetURL = (source, key, target) => {
       return '#' + target.id;
-    }
+    };
+
+    options.strictWarnings = true;
 
     return options;
   }

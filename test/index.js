@@ -19,5 +19,12 @@ var promise = thisModule.get(
 promise.then((cards) => {
   console.log(JSON.stringify(cards, null, 2));
 }, (reason) => {
-  console.error(reason);
+  if (reason.name == 'BoardConversionWarnings') {
+    reason.warnings.forEach(function (warning) {
+      console.error(warning);
+    });
+  }
+  else {
+    console.error(reason.message);
+  }
 });

@@ -117,13 +117,22 @@ var authToken = 'ca1dd89c602cb34e8558d9451cdc7727855e3803d885aeb7b671bd64ac7d6be
 // Get the board https://trello.com/b/dMFueFPQ/food-magazine
 trelloKB.get(appKey, authToken, 'dMFueFPQ').then(
   function (cards) {
-
     // Print the title of each card
     cards.forEach(function (card) {
       console.log(card.title);
     });
-  }, function (reason) {
-    console.error(reason);
+  },
+  function (reason) {
+    // If there were warnings, display each warning
+    if (reason.name == 'BoardConversionWarnings') {
+      reason.warnings.forEach(function (warning) {
+        console.error(warning);
+      });
+    }
+    // Otherwise, display the error message
+    else {
+      console.error(reason.message);
+    }
   }
 );
 ```
@@ -258,3 +267,21 @@ trelloKB.options.linkTargetURL = function (source, key, target) {
 ```
 
 > **NOTE:** When Trello KB applies `linkTargetURL`, some properties of the source and target objects may be null. This limitation only applies to properties that should contain HTML, such as the `description` properties.
+
+## strictWarnings
+
+The `strictWarnings` option is a Boolean that specifies whether Trello KB returns a rejected promise if warnings were generated during the conversion process. The default value is true, which means that Trello KB returns a rejected promise if any of the following conditions occur:
+
+- A code block in a card description contains invalid YAML
+- A card description contains a link to a comment, action, or board
+- A card description contains a link to a card that Trello KB did not get
+- [headerMap](#headermap) returns a level that is less than 1 or greater than 6
+- [headerMap](#headermap), [headerId](#headerid), or [linkTargetURL](#linktargeturl) produces an error
+
+To ignore these conditions:
+
+```javascript
+const trelloKB = require('trello-kb');
+
+trelloKB.options.strictWarnings = false;
+```
