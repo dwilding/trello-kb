@@ -344,7 +344,6 @@ class Converter {
       if (text == href) {
         text = escape(target.title);
       }
-      href = '';
       try {
         href = this.options.linkTargetURL(card, key, target);
       }
@@ -360,6 +359,7 @@ class Converter {
             href: href
           }
         });
+        href = '';
       }
       if (href != '') {
         return Converter.renderLink(escape(href), title, text);
