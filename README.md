@@ -155,7 +155,7 @@ For each card on the board, Trello KB returns an object with the following prope
 
 | Property      | Description                                                                                                                                                                                                                                                                                                                                                                           |
 |---------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `id`          | <p>The Trello ID of the card.</p>                                                                                                                                                                                                                                                                                                                                                     |
+| `id`          | <p>The Trello ID of the card.</p><p>You can use the [shortCardIds](#shortcardids) option to control the format of this property.</p>                                                                                                                                                                                                                                                  |
 | `title`       | <p>The card title.</p>                                                                                                                                                                                                                                                                                                                                                                |
 | `list`        | <p>The name of the list that the card is in.</p>                                                                                                                                                                                                                                                                                                                                      |
 | `cover`       | <p>The URL of the card cover.</p><p>Only available if [a cover image has been attached to the card](http://help.trello.com/article/769-adding-attachments-to-cards).</p><p>You can use the [getCovers](#getcovers) option to control whether Trello KB returns this property.</p>                                                                                                     |
@@ -191,6 +191,18 @@ To ignore card covers:
 const trelloKB = require('trello-kb');
 
 trelloKB.options.getCovers = false;
+```
+
+## shortCardIds
+
+The `shortCardIds` option is a Boolean that specifies whether Trello KB uses short IDs (e.g., "Xrf9TsE1") for card objects. The default value is false, which means that Trello KB uses long IDs (e.g., "59f3d975e68c2ace90bbc3c5") for card objects.
+
+To use short IDs for card objects:
+
+```javascript
+const trelloKB = require('trello-kb');
+
+trelloKB.options.shortCardIds = true;
 ```
 
 ## keyFromText

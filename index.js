@@ -51,6 +51,9 @@ class Converter {
         // FIRST PASS: cards --> this.results
         // Get cards by short identifier, with unparsed tokens instead of HTML
         cards.forEach((card) => {
+          if (this.options.shortCardIds) {
+            card.id = card.shortLink
+          }
           var obj = {
             id: card.id,
             title: card.name,
@@ -462,6 +465,9 @@ class Converter {
 
     // By default, get the URLs of card covers
     options.getCovers = true;
+
+    // By default, use long card IDs
+    options.shortCardIds = false;
 
     // Specifies how to convert label names and header text to property names
     options.keyFromText = (text, type) => {
